@@ -1,0 +1,8 @@
+{
+  "label": "Module 3: NVIDIA Isaac Platform",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Master NVIDIA's Isaac platform for high-fidelity simulation, Isaac ROS integration, VSLAM, and Nav2 for bipedal locomotion."
+  }
+}
