@@ -19,7 +19,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(mkdir:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "WebFetch(domain:areebaaijaz.github.io)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
