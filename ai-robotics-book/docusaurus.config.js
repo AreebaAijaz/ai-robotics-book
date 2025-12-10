@@ -20,13 +20,13 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://ai-robotics-book.github.io',
+  url: 'https://AreebaAijaz.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/ai-robotics-book/',
 
   // GitHub pages deployment config.
-  organizationName: 'ai-robotics-book', // GitHub org/user name
+  organizationName: 'AreebaAijaz', // GitHub org/user name
   projectName: 'ai-robotics-book', // Repo name
   trailingSlash: false,
 
@@ -54,7 +54,7 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          routeBasePath: '/', // Serve docs at root URL
+          routeBasePath: 'docs', // Serve docs at root URL
         },
         blog: false, // Disable blog
         theme: {
@@ -77,7 +77,7 @@ const config = {
         logo: {
           alt: 'Physical AI Logo',
           src: 'img/logo.svg',
-          href: '/intro',
+          href: '/',
         },
         items: [
           {
@@ -87,7 +87,7 @@ const config = {
             label: 'Curriculum',
           },
           {
-            href: 'https://github.com/ai-robotics-book/ai-robotics-book',
+            href: 'https://github.com/AreebaAijaz/ai-robotics-book',
             label: 'GitHub',
             position: 'right',
           },
@@ -101,15 +101,15 @@ const config = {
             items: [
               {
                 label: 'Introduction',
-                to: '/intro',
+                to: '/docs/intro',
               },
               {
                 label: 'ROS 2 Fundamentals',
-                to: '/module-1-ros2/architecture',
+                to: '/docs/module-1-ros2/architecture',
               },
               {
                 label: 'Simulation',
-                to: '/module-2-simulation/gazebo-basics',
+                to: '/docs/module-2-simulation/gazebo-basics',
               },
             ],
           },
@@ -118,15 +118,15 @@ const config = {
             items: [
               {
                 label: 'NVIDIA Isaac',
-                to: '/module-3-isaac/isaac-sim-overview',
+                to: '/docs/module-3-isaac/isaac-sim-overview',
               },
               {
                 label: 'VLA Models',
-                to: '/module-4-vla/voice-to-action',
+                to: '/docs/module-4-vla/voice-to-action',
               },
               {
                 label: 'Capstone Project',
-                to: '/capstone/',
+                to: '/docs/capstone/',
               },
             ],
           },
@@ -135,7 +135,7 @@ const config = {
             items: [
               {
                 label: 'References',
-                to: '/resources/references',
+                to: '/docs/resources/references',
               },
               {
                 label: 'ROS 2 Documentation',

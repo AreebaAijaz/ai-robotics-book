@@ -29,18 +29,20 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: './package-lock.json'
+          cache-dependency-path: 'ai-robotics-book/package-lock.json'
 
       - name: Install dependencies
+        working-directory: ai-robotics-book
         run: npm ci
 
       - name: Build website
+        working-directory: ai-robotics-book
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build
+          path: ai-robotics-book/build
 
   deploy:
     environment:
