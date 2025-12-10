@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash .specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(bash:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npx create-docusaurus@latest ai-robotics-book classic --javascript --skip-install)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run build)",
+      "Bash(git add:*)",
+      "Bash(dir:*)",
+      "mcp__github__search_repositories",
+      "mcp__github__create_repository",
+      "mcp__github__get_me"
+    ]
+  }
+}
