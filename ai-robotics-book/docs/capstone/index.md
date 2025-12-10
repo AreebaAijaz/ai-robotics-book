@@ -252,7 +252,7 @@ colcon test --packages-select capstone
 - [Isaac Sim Documentation](https://docs.omniverse.nvidia.com/isaacsim)
 - [Nav2 Documentation](https://navigation.ros.org/)
 - [Whisper Speech Recognition](https://github.com/openai/whisper)
-- [Module Code Examples](../resources/references)
+- [Module Code Examples](/docs/resources/references)
 
 ## Submission
 
