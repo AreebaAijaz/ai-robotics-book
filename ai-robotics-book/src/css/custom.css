@@ -53,8 +53,40 @@ body { font-feature-settings: "liga", "kern"; -webkit-font-smoothing: antialiase
 
 .menu__link { border-radius: 8px; transition: all 0.2s ease; font-weight: 500; }
 .menu__link:hover { background: rgba(99, 102, 241, 0.1); }
-.menu__link--active { background: var(--custom-gradient-primary); color: white !important; font-weight: 600; }
-.menu__link--active:hover { background: var(--custom-gradient-primary); color: white !important; }
+
+/* Active link styling - only for actual page links, not category headers */
+.menu__link--active:not(.menu__link--sublist) {
+  background: var(--custom-gradient-primary);
+  color: white !important;
+  font-weight: 600;
+}
+.menu__link--active:not(.menu__link--sublist):hover {
+  background: var(--custom-gradient-primary);
+  color: white !important;
+}
+
+/* Category/Module headers - subtle highlight when expanded or containing active child */
+.menu__link--sublist {
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
+}
+.menu__list-item:has(.menu__link--active) > .menu__link--sublist {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--ifm-color-primary);
+}
+.menu__link--sublist-caret::after {
+  background-size: 1.5rem 1.5rem;
+}
+
+/* Ensure expanded categories remain visible */
+.menu__list-item--collapsed .menu__link--sublist,
+.menu__list-item:not(.menu__list-item--collapsed) .menu__link--sublist {
+  color: var(--ifm-font-color-base);
+}
+[data-theme="dark"] .menu__list-item:has(.menu__link--active) > .menu__link--sublist {
+  background: rgba(129, 140, 248, 0.2);
+  color: var(--ifm-color-primary-light);
+}
 
 .markdown h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; background: var(--custom-gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .markdown h2 { font-size: 1.75rem; font-weight: 700; margin-top: 3rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--ifm-color-primary-lightest); }
