@@ -2,8 +2,8 @@
  * API client for RAG Chatbot backend.
  */
 
-// Production API URL - UPDATE THIS after Render deployment
-const PRODUCTION_API_URL = 'https://rag-chatbot-api.onrender.com/api';
+// Production API URL (Render deployment)
+const PRODUCTION_API_URL = 'https://rag-chatbot-api-u7p4.onrender.com/api';
 const DEVELOPMENT_API_URL = 'http://localhost:8000/api';
 
 /**
