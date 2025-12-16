@@ -1,0 +1,26 @@
+# Render Blueprint Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: rag-chatbot-api
+    runtime: python
+    region: oregon  # or your preferred region
+    plan: free  # free tier for development, upgrade for production
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: OPENAI_API_KEY
+        sync: false  # Set manually in dashboard
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: "https://areebaaijaz.github.io,http://localhost:3000"
+    healthCheckPath: /api/health
+    autoDeploy: true  # Auto-deploy on git push
