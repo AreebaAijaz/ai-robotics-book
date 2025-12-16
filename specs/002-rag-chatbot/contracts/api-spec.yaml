@@ -1,0 +1,304 @@
+openapi: 3.1.0
+info:
+  title: RAG Chatbot API
+  description: API for the Physical AI book RAG chatbot with text selection support
+  version: 1.0.0
+  contact:
+    name: AI Robotics Book Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+tags:
+  - name: Chat
+    description: Chat endpoints for Q&A functionality
+  - name: Health
+    description: Service health monitoring
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: Returns service health status and dependency connectivity
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/chat:
+    post:
+      tags:
+        - Chat
+      summary: Send a general chat message
+      description: |
+        Submit a question about the Physical AI book content.
+        The system will search the entire book for relevant information
+        and return an answer with source citations.
+      operationId: sendChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              generalQuestion:
+                summary: General question about ROS 2
+                value:
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  message: "What is ROS 2 and how does it differ from ROS 1?"
+              followUp:
+                summary: Follow-up question
+                value:
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  message: "Can you explain the DDS middleware in more detail?"
+      responses:
+        '200':
+          description: Successful response with answer and citations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable (dependency failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/selection:
+    post:
+      tags:
+        - Chat
+      summary: Ask about selected text
+      description: |
+        Submit a question about specific text selected by the user.
+        The selected text provides additional context for the query.
+        If no question is provided, the system will explain the selected text.
+      operationId: sendSelectionMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectionChatRequest'
+            examples:
+              explainSelection:
+                summary: Explain selected text (no question)
+                value:
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  selected_text: "The DDS (Data Distribution Service) middleware provides a decoupled, real-time publish-subscribe communication layer."
+              questionAboutSelection:
+                summary: Question about selected text
+                value:
+                  session_id: "550e8400-e29b-41d4-a716-446655440000"
+                  selected_text: "rclpy is the Python client library for ROS 2"
+                  question: "What are the main differences between rclpy and rospy?"
+      responses:
+        '200':
+          description: Successful response with explanation and citations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request (e.g., selected_text too long)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - session_id
+        - message
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the chat session
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: The user's question about the book content
+          example: "What is ROS 2?"
+
+    SelectionChatRequest:
+      type: object
+      required:
+        - session_id
+        - selected_text
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the chat session
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        selected_text:
+          type: string
+          minLength: 3
+          maxLength: 2000
+          description: The text selected by the user on the page
+          example: "ROS 2 uses DDS for middleware communication"
+        question:
+          type: string
+          maxLength: 500
+          description: Optional follow-up question about the selected text
+          example: "What does DDS stand for?"
+
+    ChatResponse:
+      type: object
+      required:
+        - message_id
+        - content
+        - citations
+        - response_time_ms
+      properties:
+        message_id:
+          type: string
+          format: uuid
+          description: Unique identifier for this response message
+          example: "660e8400-e29b-41d4-a716-446655440001"
+        content:
+          type: string
+          description: The assistant's response (markdown formatted)
+          example: "ROS 2 (Robot Operating System 2) is a flexible framework for writing robot software..."
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: Source references from the book
+        response_time_ms:
+          type: integer
+          minimum: 0
+          description: Time taken to generate the response in milliseconds
+          example: 1250
+
+    Citation:
+      type: object
+      required:
+        - module
+        - chapter
+      properties:
+        module:
+          type: string
+          description: Module name
+          example: "Module 1: ROS 2 Fundamentals"
+        chapter:
+          type: string
+          description: Chapter name
+          example: "Chapter 1: Architecture"
+        section:
+          type: string
+          description: Section heading (if available)
+          example: "ROS 2 Architecture Overview"
+        relevance_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Semantic similarity score (0-1)
+          example: 0.89
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: Overall service health status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2025-12-16T10:30:00Z"
+        dependencies:
+          type: object
+          properties:
+            qdrant:
+              $ref: '#/components/schemas/DependencyStatus'
+            postgres:
+              $ref: '#/components/schemas/DependencyStatus'
+            openai:
+              $ref: '#/components/schemas/DependencyStatus'
+
+    DependencyStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [connected, disconnected, error]
+          description: Dependency connection status
+          example: "connected"
+        latency_ms:
+          type: integer
+          description: Connection latency in milliseconds
+          example: 45
+        error:
+          type: string
+          description: Error message if status is error
+          example: null
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "validation_error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Message cannot be empty"
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
+          example:
+            field: "message"
+            constraint: "minLength"

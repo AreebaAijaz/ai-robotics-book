@@ -1,0 +1,65 @@
+/* Ask Button */
+.askButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--ifm-color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--ifm-font-family-base);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+  animation: fadeInUp 0.2s ease;
+}
+
+.askButton:hover {
+  background: var(--ifm-color-primary-dark);
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.askButton:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+.askIcon {
+  width: 16px;
+  height: 16px;
+  fill: white;
+}
+
+.askText {
+  line-height: 1;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .askButton {
+    padding: 10px 14px;
+    font-size: 14px;
+    min-height: 44px; /* Touch target */
+  }
+
+  .askIcon {
+    width: 18px;
+    height: 18px;
+  }
+}
