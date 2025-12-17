@@ -6,7 +6,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
+  z-index: 1;
   animation: fadeInBackdrop 0.2s ease-out;
   cursor: pointer;
 }
@@ -22,6 +22,15 @@
 
 [data-theme='dark'] .backdrop {
   background: rgba(0, 0, 0, 0.7);
+}
+
+/* Chat Panel Wrapper - ensures panel is above backdrop */
+.chatPanelWrapper {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 /* =============================================
@@ -224,9 +233,6 @@
 
 /* Chat Panel */
 .chatPanel {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
   width: 400px;
   height: 520px;
   background: var(--ifm-background-color, #ffffff);
@@ -236,10 +242,7 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--ifm-color-emphasis-200);
-  z-index: 10000; /* Above backdrop */
   animation: slideUp 0.25s ease-out;
-  /* Ensure solid background - no content bleeding */
-  isolation: isolate;
   /* Ensure input elements are interactive */
   pointer-events: auto;
 }
@@ -704,17 +707,20 @@
     right: 16px;
   }
 
-  .chatPanel {
+  .chatPanelWrapper {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 10000;
+  }
+
+  .chatPanel {
     width: 100%;
     height: 100%;
     border-radius: 0;
     animation: slideUpMobile 0.25s ease-out;
-    z-index: 10000;
   }
 
   @keyframes slideUpMobile {
