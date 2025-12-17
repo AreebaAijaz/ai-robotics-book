@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from '@docusaurus/router';
 import ChatPanel from './ChatPanel';
 import useChat from '../../hooks/useChat';
 import styles from './styles.module.css';
@@ -8,6 +9,7 @@ import styles from './styles.module.css';
  */
 export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
   const {
     messages,
     isLoading,
@@ -17,6 +19,10 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
     retryLastMessage,
     clearChat
   } = useChat();
+
+  // Detect if we're on the homepage (navy background) or docs pages (white background)
+  const isHomePage = location.pathname === '/' || location.pathname === '/ai-robotics-book/' || location.pathname === '/ai-robotics-book';
+  const themeClass = isHomePage ? styles.lightTheme : styles.darkTheme;
 
   // Handle pending selection from text selection
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
         />
       )}
 
-      <div className={styles.chatWidgetContainer}>
+      <div className={`${styles.chatWidgetContainer} ${themeClass}`}>
         {isOpen && (
           <ChatPanel
             messages={messages}
@@ -61,6 +67,7 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
             onClose={handleClose}
             onRetry={error ? retryLastMessage : null}
             onClear={clearChat}
+            themeClass={themeClass}
           />
         )}
 

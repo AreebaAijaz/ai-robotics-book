@@ -13,7 +13,8 @@ export default function ChatPanel({
   onSend,
   onClose,
   onRetry,
-  onClear
+  onClear,
+  themeClass
 }) {
   const messagesEndRef = useRef(null);
 
@@ -25,7 +26,7 @@ export default function ChatPanel({
   }, [messages, isLoading]);
 
   return (
-    <div className={styles.chatPanel}>
+    <div className={`${styles.chatPanel} ${themeClass || ''}`}>
       {/* Header */}
       <div className={styles.panelHeader}>
         <h3 className={styles.panelTitle}>Book Assistant</h3>

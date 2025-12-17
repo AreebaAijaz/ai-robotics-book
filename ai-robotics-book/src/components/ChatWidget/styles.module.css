@@ -24,6 +24,157 @@
   background: rgba(0, 0, 0, 0.7);
 }
 
+/* =============================================
+   THEME VARIANTS FOR PAGE CONTEXT
+   - lightTheme: White chatbot on navy homepage
+   - darkTheme: Navy chatbot on white docs pages
+   ============================================= */
+
+/* Light Theme (for homepage with navy background) */
+.lightTheme .chatPanel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.lightTheme .panelHeader {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.lightTheme .messagesContainer {
+  background: #ffffff;
+}
+
+.lightTheme .assistantMessage {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.lightTheme .userMessage {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.lightTheme .inputContainer {
+  background: #f8fafc;
+  border-top-color: #e2e8f0;
+}
+
+.lightTheme .chatInput {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.lightTheme .chatInput::placeholder {
+  color: #94a3b8;
+}
+
+.lightTheme .emptyState {
+  color: #64748b;
+}
+
+.lightTheme .emptyStateTitle {
+  color: #1e293b;
+}
+
+/* Dark Theme (for docs pages with white background) */
+.darkTheme .chatPanel {
+  background: #1e1b4b;
+  border-color: #312e81;
+  color: #e0e7ff;
+}
+
+.darkTheme .panelHeader {
+  background: linear-gradient(135deg, #312e81, #1e3a5f);
+  color: white;
+}
+
+.darkTheme .messagesContainer {
+  background: #1e1b4b;
+}
+
+.darkTheme .assistantMessage {
+  background: #312e81;
+  color: #e0e7ff;
+}
+
+.darkTheme .userMessage {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+}
+
+.darkTheme .inputContainer {
+  background: #0f0f23;
+  border-top-color: #312e81;
+}
+
+.darkTheme .chatInput {
+  background: #1e1b4b;
+  border-color: #312e81;
+  color: #e0e7ff;
+}
+
+.darkTheme .chatInput::placeholder {
+  color: #6366f1;
+}
+
+.darkTheme .chatInput:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.darkTheme .emptyState {
+  color: #a5b4fc;
+}
+
+.darkTheme .emptyStateTitle {
+  color: #e0e7ff;
+}
+
+.darkTheme .emptyStateIcon {
+  fill: #6366f1;
+}
+
+.darkTheme .loadingIndicator {
+  background: #312e81;
+}
+
+.darkTheme .loadingDot {
+  background: #818cf8;
+}
+
+.darkTheme .errorMessage {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.darkTheme .citations {
+  border-top-color: #312e81;
+}
+
+.darkTheme .citationsTitle,
+.darkTheme .citationItem {
+  color: #a5b4fc;
+}
+
+.darkTheme .messageContent code {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.darkTheme .messageContent pre {
+  background: #0f0f23;
+}
+
+.darkTheme .sendButton {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.darkTheme .sendButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
 /* Chat Widget Container */
 .chatWidgetContainer {
   position: fixed;
@@ -89,6 +240,8 @@
   animation: slideUp 0.25s ease-out;
   /* Ensure solid background - no content bleeding */
   isolation: isolate;
+  /* Ensure input elements are interactive */
+  pointer-events: auto;
 }
 
 [data-theme='dark'] .chatPanel {
@@ -403,6 +556,9 @@
   border-top: 1px solid var(--ifm-color-emphasis-200);
   background: var(--ifm-background-surface-color);
   flex-shrink: 0;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .chatInput {
@@ -418,6 +574,8 @@
   min-height: 44px;
   max-height: 100px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: auto;
+  cursor: text;
 }
 
 .chatInput:focus {
