@@ -122,12 +122,14 @@ class RAGAgent:
         self,
         query: str,
         selected_text: Optional[str] = None,
+        personalized_prompt: Optional[str] = None,
     ) -> dict:
         """Generate a response to the user's query using RAG.
 
         Args:
             query: The user's question.
             selected_text: Optional selected text for context.
+            personalized_prompt: Optional personalized system prompt addition.
 
         Returns:
             dict: Response with content, citations, and message_id.
@@ -137,6 +139,11 @@ class RAGAgent:
 
         # Format context for the LLM
         context = self._format_context(search_results)
+
+        # Build the system prompt
+        system_prompt = SYSTEM_PROMPT
+        if personalized_prompt:
+            system_prompt = f"{SYSTEM_PROMPT}\n\n{personalized_prompt}"
 
         # Build the user message
         if selected_text:
@@ -167,7 +174,7 @@ Please provide a helpful answer based on the book content."""
             model=self.model,
             temperature=self.temperature,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
         )

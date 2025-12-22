@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: RAG Chatbot API - Authentication & Personalization
+  version: 2.0.0
+servers:
+  - url: https://physical-ai-rag.onrender.com/api
+    description: Production server
+  - url: http://localhost:8000/api
+    description: Development server
+
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created successfully
+
+  /auth/login:
+    post:
+      summary: Authenticate user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+
+  /auth/logout:
+    post:
+      summary: End user session
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+
+  /auth/forgot-password:
+    post:
+      summary: Request password reset
+      tags: [Authentication]
+      responses:
+        '200':
+          description: Reset email sent
+
+  /user/profile:
+    get:
+      summary: Get user profile
+      tags: [User Profile]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile data
+    put:
+      summary: Update user profile
+      tags: [User Profile]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile updated
+    post:
+      summary: Create user profile
+      tags: [User Profile]
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Profile created
+
+  /user/me:
+    get:
+      summary: Get current user info
+      tags: [User Profile]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User info
+    delete:
+      summary: Delete user account
+      tags: [User Profile]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Account deleted
+
+  /chat:
+    post:
+      summary: Send chat message (requires auth)
+      tags: [Chat]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Chat response
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SignupRequest:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        rememberMe:
+          type: boolean
+          default: true
+
+    UserProfile:
+      type: object
+      properties:
+        expertiseLevel:
+          type: string
+          enum: [beginner, intermediate, advanced, expert]
+        interests:
+          type: array
+          items:
+            type: string
+        learningGoals:
+          type: string
+          enum: [casual, deep_understanding, practical, research]
+        preferredFormat:
+          type: string
+          enum: [text, diagrams, videos, code, interactive]
+        timeAvailability:
+          type: string
+          enum: [quick_5min, medium_15min, deep_30min]
+        challenges:
+          type: string
+        devicePreference:
+          type: string
+          enum: [desktop, tablet, mobile]

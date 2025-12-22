@@ -65,6 +65,16 @@ export default function useTextSelection() {
   useEffect(() => {
     // Listen for mouseup to detect selection completion
     const handleMouseUp = (e) => {
+      // Don't check for selection in form elements - they need clean focus
+      const targetTag = e.target.tagName.toLowerCase();
+      const isFormElement = ['input', 'textarea', 'select', 'button'].includes(targetTag);
+      const isInModal = e.target.closest('[role="dialog"]') || e.target.closest('[class*="modal"]') || e.target.closest('[class*="Modal"]');
+      const isInForm = e.target.closest('form');
+
+      if (isFormElement || isInModal || isInForm) {
+        return;
+      }
+
       // Small delay to ensure selection is complete
       setTimeout(handleSelectionChange, 10);
     };
@@ -80,7 +90,26 @@ export default function useTextSelection() {
       if (e.target.closest('[data-selection-button]')) {
         return;
       }
-      // Small delay to allow for new selection
+
+      // Don't interfere with form elements - they need clean focus handling
+      const targetTag = e.target.tagName.toLowerCase();
+      const isFormElement = ['input', 'textarea', 'select', 'button'].includes(targetTag);
+      const isInModal = e.target.closest('[role="dialog"]') || e.target.closest('[class*="modal"]') || e.target.closest('[class*="Modal"]');
+      const isInForm = e.target.closest('form');
+
+      if (isFormElement || isInModal || isInForm) {
+        // Just clear selection immediately without setTimeout to avoid focus race
+        if (selection.isVisible) {
+          setSelection({
+            text: '',
+            position: null,
+            isVisible: false,
+          });
+        }
+        return;
+      }
+
+      // Small delay to allow for new selection (only for non-form elements)
       setTimeout(() => {
         const selectedText = window.getSelection()?.toString().trim() || '';
         if (selectedText.length < 3) {

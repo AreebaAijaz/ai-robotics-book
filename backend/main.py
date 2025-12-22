@@ -5,11 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from routers.chat import router as chat_router
+from routers.auth import router as auth_router
+from routers.user import router as user_router
 
 app = FastAPI(
     title="RAG Chatbot API",
-    description="API for the Physical AI book RAG chatbot with text selection support",
-    version="1.0.0",
+    description="API for the Physical AI book RAG chatbot with authentication and personalization",
+    version="2.0.0",
 )
 
 # Configure CORS middleware
@@ -23,6 +25,8 @@ app.add_middleware(
 
 
 # Include routers
+app.include_router(auth_router)
+app.include_router(user_router)
 app.include_router(chat_router)
 
 

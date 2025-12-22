@@ -87,6 +87,11 @@ const config = {
             label: 'Curriculum',
           },
           {
+            type: 'html',
+            position: 'right',
+            value: '<div id="navbar-login-button"></div>',
+          },
+          {
             href: 'https://github.com/AreebaAijaz/ai-robotics-book',
             label: 'GitHub',
             position: 'right',

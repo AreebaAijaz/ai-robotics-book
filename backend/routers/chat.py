@@ -2,8 +2,9 @@
 
 import time
 from datetime import datetime, timezone
+from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from openai import OpenAI
 
 from config import settings
@@ -12,6 +13,8 @@ from models.chat import ChatRequest, ChatResponse, SelectionChatRequest, Citatio
 from services.qdrant import qdrant_service
 from services.postgres import postgres_service
 from services.agent import rag_agent
+from middleware.auth import get_current_user, get_optional_user
+from personalization.rag_personalizer import rag_personalizer
 
 router = APIRouter(prefix="/api", tags=["Chat"])
 
@@ -88,11 +91,15 @@ def _check_openai() -> DependencyStatus:
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def send_chat_message(request: ChatRequest):
+async def send_chat_message(
+    request: ChatRequest,
+    current_user: Optional[dict] = Depends(get_optional_user)
+):
     """Send a general chat message about the book content.
 
     Args:
         request: ChatRequest with session_id and message.
+        current_user: Optional authenticated user for personalization.
 
     Returns:
         ChatResponse: Assistant response with citations.
@@ -100,8 +107,18 @@ async def send_chat_message(request: ChatRequest):
     start_time = time.time()
 
     try:
+        # Get personalized prompt if user is authenticated
+        personalized_prompt = None
+        user_id = None
+        if current_user:
+            user_id = current_user.get("user_id")
+            personalized_prompt = rag_personalizer.get_personalized_system_prompt(user_id)
+
         # Generate response using RAG agent
-        result = rag_agent.generate_response(query=request.message)
+        result = rag_agent.generate_response(
+            query=request.message,
+            personalized_prompt=personalized_prompt,
+        )
 
         # Calculate response time
         response_time_ms = int((time.time() - start_time) * 1000)
@@ -125,6 +142,7 @@ async def send_chat_message(request: ChatRequest):
             citations=result.get("citations", []),
             response_time_ms=response_time_ms,
             query_type="general",
+            user_id=user_id,
         )
 
         return ChatResponse(
@@ -142,11 +160,15 @@ async def send_chat_message(request: ChatRequest):
 
 
 @router.post("/chat/selection", response_model=ChatResponse)
-async def send_selection_message(request: SelectionChatRequest):
+async def send_selection_message(
+    request: SelectionChatRequest,
+    current_user: Optional[dict] = Depends(get_optional_user)
+):
     """Send a message about selected text from the book.
 
     Args:
         request: SelectionChatRequest with session_id, selected_text, and optional question.
+        current_user: Optional authenticated user for personalization.
 
     Returns:
         ChatResponse: Assistant response with citations.
@@ -157,10 +179,18 @@ async def send_selection_message(request: SelectionChatRequest):
         # Build the query - use question if provided, otherwise ask to explain selection
         query = request.question if request.question else f"Please explain the following text: {request.selected_text}"
 
+        # Get personalized prompt if user is authenticated
+        personalized_prompt = None
+        user_id = None
+        if current_user:
+            user_id = current_user.get("user_id")
+            personalized_prompt = rag_personalizer.get_personalized_system_prompt(user_id)
+
         # Generate response using RAG agent with selected text context
         result = rag_agent.generate_response(
             query=query,
             selected_text=request.selected_text,
+            personalized_prompt=personalized_prompt,
         )
 
         # Calculate response time
@@ -186,6 +216,7 @@ async def send_selection_message(request: SelectionChatRequest):
             response_time_ms=response_time_ms,
             query_type="selection",
             selected_text=request.selected_text,
+            user_id=user_id,
         )
 
         return ChatResponse(

@@ -4,9 +4,20 @@ import styles from './styles.module.css';
 /**
  * Chat input component with text area and send button.
  */
-export default function ChatInput({ onSend, disabled }) {
+export default function ChatInput({ onSend, disabled, autoFocus }) {
   const [message, setMessage] = useState('');
   const textareaRef = useRef(null);
+
+  // Auto-focus the input when component mounts or autoFocus changes
+  useEffect(() => {
+    if (autoFocus && textareaRef.current && !disabled) {
+      // Small delay to ensure the panel animation is complete
+      const timer = setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus, disabled]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -44,6 +55,7 @@ export default function ChatInput({ onSend, disabled }) {
         placeholder="Ask about the book..."
         disabled={disabled}
         rows={1}
+        autoFocus={autoFocus}
       />
       <button
         type="submit"

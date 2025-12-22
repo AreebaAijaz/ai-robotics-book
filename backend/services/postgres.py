@@ -24,14 +24,50 @@ class PostgresService:
             psycopg2 connection object.
         """
         # Add connection timeout for serverless cold starts
+        # Neon requires SSL and may need longer timeout for cold starts
         conn = psycopg2.connect(
             self.connection_string,
-            connect_timeout=30,
+            connect_timeout=60,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5,
         )
         try:
             yield conn
         finally:
             conn.close()
+
+    def get_raw_connection(self):
+        """Get a database connection (caller must close).
+
+        Returns:
+            psycopg2 connection object or None on failure.
+        """
+        try:
+            return psycopg2.connect(
+                self.connection_string,
+                connect_timeout=60,
+                keepalives=1,
+                keepalives_idle=30,
+                keepalives_interval=10,
+                keepalives_count=5,
+            )
+        except Exception as e:
+            print(f"Database connection error: {e}")
+            return None
+
+    def return_connection(self, conn):
+        """Return/close a connection.
+
+        Args:
+            conn: The connection to close.
+        """
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     def health_check(self) -> dict:
         """Check PostgreSQL connection health.
@@ -129,6 +165,7 @@ class PostgresService:
         response_time_ms: int,
         query_type: str = "general",
         selected_text: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> Optional[str]:
         """Log a query to the query_logs table.
 
@@ -140,6 +177,7 @@ class PostgresService:
             response_time_ms: Response time in milliseconds.
             query_type: Type of query ('general' or 'selection').
             selected_text: Optional selected text for selection queries.
+            user_id: Optional authenticated user ID.
 
         Returns:
             str: The query log ID, or None if logging failed.
@@ -151,8 +189,8 @@ class PostgresService:
                         """
                         INSERT INTO query_logs
                         (session_id, query_text, response_text, citations,
-                         response_time_ms, query_type, selected_text)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                         response_time_ms, query_type, selected_text, user_id)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         RETURNING id
                         """,
                         (
@@ -163,6 +201,7 @@ class PostgresService:
                             response_time_ms,
                             query_type,
                             selected_text,
+                            user_id,
                         ),
                     )
                     log_id = cur.fetchone()[0]

@@ -42,5 +42,11 @@ class Settings:
     CHUNK_SIZE: int = 800
     CHUNK_OVERLAP: int = 100
 
+    # Authentication
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_DAYS: int = 7
+    PASSWORD_RESET_EXPIRATION_HOURS: int = 1
+
 
 settings = Settings()

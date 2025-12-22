@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from '@docusaurus/router';
 import ChatPanel from './ChatPanel';
+import AuthModal from '../AuthModal';
+import ProfileSettings from '../ProfileSettings';
 import useChat from '../../hooks/useChat';
+import useAuth from '../../hooks/useAuth';
 import styles from './styles.module.css';
 
 /**
  * Main ChatWidget component with floating button and panel.
+ * Requires authentication to access the chatbot.
  */
 export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, isLoading: authLoading, user, signOut } = useAuth();
   const {
     messages,
     isLoading,
@@ -26,7 +33,7 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
 
   // Handle pending selection from text selection
   useEffect(() => {
-    if (pendingSelection && !isLoading) {
+    if (pendingSelection && !isLoading && isAuthenticated) {
       // Open the chat panel
       setIsOpen(true);
       // Send the selection query
@@ -35,35 +42,73 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
       if (onSelectionHandled) {
         onSelectionHandled();
       }
+    } else if (pendingSelection && !isAuthenticated) {
+      // Show auth modal if not authenticated
+      setShowAuthModal(true);
+      if (onSelectionHandled) {
+        onSelectionHandled();
+      }
     }
-  }, [pendingSelection, isLoading, sendSelectionQuery, onSelectionHandled]);
+  }, [pendingSelection, isLoading, isAuthenticated, sendSelectionQuery, onSelectionHandled]);
 
   const handleToggle = () => {
-    setIsOpen(!isOpen);
+    if (!isAuthenticated && !isOpen) {
+      // Show auth modal if not authenticated
+      setShowAuthModal(true);
+    } else {
+      setIsOpen(!isOpen);
+    }
   };
 
   const handleClose = () => {
     setIsOpen(false);
   };
 
-  // Stop propagation to prevent backdrop from capturing panel clicks
-  const handlePanelClick = (e) => {
-    e.stopPropagation();
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    setIsOpen(true);
+  };
+
+  const handleCloseAuthModal = () => {
+    setShowAuthModal(false);
+  };
+
+  const handleOpenSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
+
+  // Handle backdrop click - only close if clicking directly on backdrop
+  const handleBackdropClick = (e) => {
+    // Only close if the click target is the backdrop itself
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
   };
 
   return (
     <div className={`${styles.chatWidgetContainer} ${themeClass}`}>
+      {/* Auth Modal for unauthenticated users */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={handleCloseAuthModal}
+        onSuccess={handleAuthSuccess}
+      />
+
       {/* Backdrop overlay when chat is open - inside container for proper stacking */}
       {isOpen && (
         <div
           className={styles.backdrop}
-          onClick={handleClose}
+          onClick={handleBackdropClick}
           aria-hidden="true"
         />
       )}
 
-      {isOpen && (
-        <div className={styles.chatPanelWrapper} onClick={handlePanelClick}>
+      {isOpen && isAuthenticated && (
+        <div className={styles.chatPanelWrapper}>
           <ChatPanel
             messages={messages}
             isLoading={isLoading}
@@ -73,7 +118,24 @@ export default function ChatWidget({ pendingSelection, onSelectionHandled }) {
             onRetry={error ? retryLastMessage : null}
             onClear={clearChat}
             themeClass={themeClass}
+            user={user}
+            onSignOut={signOut}
+            onOpenSettings={handleOpenSettings}
           />
+        </div>
+      )}
+
+      {/* Profile Settings Modal */}
+      {showSettings && (
+        <div className={styles.settingsModal} role="dialog" aria-modal="true">
+          <div
+            className={styles.settingsBackdrop}
+            onClick={handleCloseSettings}
+            aria-hidden="true"
+          />
+          <div className={styles.settingsContent} onClick={(e) => e.stopPropagation()}>
+            <ProfileSettings onClose={handleCloseSettings} />
+          </div>
         </div>
       )}
 
