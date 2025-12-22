@@ -6,8 +6,8 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 // API base URL - use environment variable or default to production
 const API_BASE_URL = typeof window !== 'undefined'
-  ? (window.__API_BASE_URL__ || 'https://ai-robotics-chatbot.onrender.com')
-  : 'https://ai-robotics-chatbot.onrender.com';
+  ? (window.__API_BASE_URL__ || 'https://ai-robotics-book.onrender.com')
+  : 'https://ai-robotics-book.onrender.com';
 
 // Create the auth context
 export const AuthContext = createContext(null);

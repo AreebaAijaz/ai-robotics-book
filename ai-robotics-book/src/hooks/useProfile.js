@@ -6,8 +6,8 @@ import useAuth from './useAuth';
 
 // API base URL
 const API_BASE_URL = typeof window !== 'undefined'
-  ? (window.__API_BASE_URL__ || 'https://ai-robotics-chatbot.onrender.com')
-  : 'https://ai-robotics-chatbot.onrender.com';
+  ? (window.__API_BASE_URL__ || 'https://ai-robotics-book.onrender.com')
+  : 'https://ai-robotics-book.onrender.com';
 
 /**
  * Hook to manage user profile data.
