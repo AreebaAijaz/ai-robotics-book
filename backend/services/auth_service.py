@@ -13,6 +13,15 @@ from config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def _truncate_password(password: str) -> str:
+    """Truncate password to 72 bytes for bcrypt compatibility.
+
+    bcrypt only uses the first 72 bytes of a password.
+    Truncating explicitly avoids warnings and ensures consistent behavior.
+    """
+    return password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+
+
 def hash_password(password: str) -> str:
     """Hash a plain text password.
 
@@ -22,7 +31,7 @@ def hash_password(password: str) -> str:
     Returns:
         Hashed password string.
     """
-    return pwd_context.hash(password)
+    return pwd_context.hash(_truncate_password(password))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -35,7 +44,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if password matches, False otherwise.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
 
 
 def create_access_token(user_id: str, email: str) -> tuple[str, datetime]:
