@@ -1,8 +1,12 @@
 """Chat router for RAG Chatbot API."""
 
+import logging
 import time
+import traceback
 from datetime import datetime, timezone
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, HTTPException, Depends
 from openai import OpenAI
@@ -153,6 +157,7 @@ async def send_chat_message(
         )
 
     except Exception as e:
+        logger.error("Chat error: %s\n%s", str(e), traceback.format_exc())
         raise HTTPException(
             status_code=500,
             detail={"error": "internal_error", "message": str(e)},
@@ -227,6 +232,7 @@ async def send_selection_message(
         )
 
     except Exception as e:
+        logger.error("Selection chat error: %s\n%s", str(e), traceback.format_exc())
         raise HTTPException(
             status_code=500,
             detail={"error": "internal_error", "message": str(e)},

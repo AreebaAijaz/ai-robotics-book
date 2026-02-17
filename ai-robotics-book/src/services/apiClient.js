@@ -69,7 +69,8 @@ export async function sendMessage(sessionId, message) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error: ${response.status}`);
+    const message = error.detail?.message || error.message || `HTTP error: ${response.status}`;
+    throw new Error(message);
   }
 
   return response.json();
@@ -109,7 +110,8 @@ export async function sendSelectionMessage(sessionId, selectedText, question = n
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP error: ${response.status}`);
+    const message = error.detail?.message || error.message || `HTTP error: ${response.status}`;
+    throw new Error(message);
   }
 
   return response.json();
