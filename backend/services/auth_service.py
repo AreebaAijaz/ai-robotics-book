@@ -10,41 +10,19 @@ from passlib.context import CryptContext
 from config import settings
 
 # Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def _truncate_password(password: str) -> str:
-    """Truncate password to 72 bytes for bcrypt compatibility.
-
-    bcrypt only uses the first 72 bytes of a password.
-    Truncating explicitly avoids warnings and ensures consistent behavior.
-    """
-    return password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+# - sha256_crypt: primary scheme (no length limits, no bcrypt 72-byte issue)
+# - bcrypt: deprecated but still verifiable for existing user passwords
+pwd_context = CryptContext(schemes=["sha256_crypt", "bcrypt"], deprecated=["bcrypt"])
 
 
 def hash_password(password: str) -> str:
-    """Hash a plain text password.
-
-    Args:
-        password: Plain text password.
-
-    Returns:
-        Hashed password string.
-    """
-    return pwd_context.hash(_truncate_password(password))
+    """Hash a plain text password."""
+    return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash.
-
-    Args:
-        plain_password: Plain text password to verify.
-        hashed_password: Stored password hash.
-
-    Returns:
-        True if password matches, False otherwise.
-    """
-    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
+    """Verify a password against its hash."""
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def create_access_token(user_id: str, email: str) -> tuple[str, datetime]:
