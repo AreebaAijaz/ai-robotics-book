@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, HTTPException, Depends
 from openai import OpenAI
+from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
 
 from config import settings
 from models.health import HealthResponse, DependenciesStatus, DependencyStatus
@@ -21,6 +22,22 @@ from middleware.auth import get_current_user, get_optional_user
 from personalization.rag_personalizer import rag_personalizer
 
 router = APIRouter(prefix="/api", tags=["Chat"])
+
+
+def _chat_error(e: Exception) -> HTTPException:
+    """Map an exception from the chat pipeline to a user-facing HTTP error."""
+    if isinstance(e, (ResponseHandlingException, UnexpectedResponse)):
+        return HTTPException(
+            status_code=503,
+            detail={
+                "error": "knowledge_base_unavailable",
+                "message": "The book knowledge base is temporarily unavailable. Please try again later.",
+            },
+        )
+    return HTTPException(
+        status_code=500,
+        detail={"error": "internal_error", "message": str(e)},
+    )
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -158,10 +175,7 @@ async def send_chat_message(
 
     except Exception as e:
         logger.error("Chat error: %s\n%s", str(e), traceback.format_exc())
-        raise HTTPException(
-            status_code=500,
-            detail={"error": "internal_error", "message": str(e)},
-        )
+        raise _chat_error(e)
 
 
 @router.post("/chat/selection", response_model=ChatResponse)
@@ -233,7 +247,4 @@ async def send_selection_message(
 
     except Exception as e:
         logger.error("Selection chat error: %s\n%s", str(e), traceback.format_exc())
-        raise HTTPException(
-            status_code=500,
-            detail={"error": "internal_error", "message": str(e)},
-        )
+        raise _chat_error(e)
