@@ -373,6 +373,15 @@
   color: white;
 }
 
+/* Section always has a dark background, so keep heading text light in both themes */
+.pathSection .sectionTitle {
+  color: #f1f5f9;
+}
+
+.pathSection .sectionSubtitle {
+  color: #c7d2fe;
+}
+
 .pathContainer {
   display: flex;
   justify-content: space-between;
