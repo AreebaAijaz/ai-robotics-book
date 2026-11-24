@@ -2,9 +2,10 @@
  * AuthModal - Modal overlay for login/signup forms.
  * Used when unauthenticated users try to access the chatbot.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginForm from '../LoginForm';
 import SignupForm from '../SignupForm';
+import useAuth from '../../hooks/useAuth';
 import styles from './styles.module.css';
 
 /**
@@ -12,6 +13,20 @@ import styles from './styles.module.css';
  */
 export default function AuthModal({ isOpen, onClose, onSuccess }) {
   const [mode, setMode] = useState('login'); // 'login' or 'signup'
+  const { clearError } = useAuth();
+
+  // Always open on the login form with no stale error from a previous attempt.
+  useEffect(() => {
+    if (isOpen) {
+      setMode('login');
+      clearError();
+    }
+  }, [isOpen, clearError]);
+
+  const switchMode = (nextMode) => {
+    clearError();
+    setMode(nextMode);
+  };
 
   if (!isOpen) return null;
 
@@ -41,13 +56,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }) {
           {mode === 'login' ? (
             <LoginForm
               onSuccess={handleSuccess}
-              onSwitchToSignup={() => setMode('signup')}
+              onSwitchToSignup={() => switchMode('signup')}
               onForgotPassword={() => {/* TODO: Implement forgot password modal */}}
             />
           ) : (
             <SignupForm
               onSuccess={handleSuccess}
-              onSwitchToLogin={() => setMode('login')}
+              onSwitchToLogin={() => switchMode('login')}
             />
           )}
         </div>

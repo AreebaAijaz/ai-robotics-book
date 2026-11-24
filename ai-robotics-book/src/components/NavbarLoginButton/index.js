@@ -67,11 +67,18 @@ export default function NavbarLoginButton() {
   const [container, setContainer] = useState(null);
 
   useEffect(() => {
-    // Find the container element
-    const el = document.getElementById('navbar-login-button');
-    if (el) {
-      setContainer(el);
-    }
+    // Docusaurus re-renders the navbar on client-side route changes, replacing
+    // the placeholder div. Re-locate it whenever the DOM changes so the portal
+    // never stays attached to a detached node (which made the button vanish).
+    const findContainer = () => {
+      const el = document.getElementById('navbar-login-button');
+      setContainer((prev) => (prev === el ? prev : el));
+    };
+
+    findContainer();
+    const observer = new MutationObserver(findContainer);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   // Don't render during SSR or if container not found

@@ -15,6 +15,11 @@ from models.user import (
 )
 
 
+def normalize_email(email: str) -> str:
+    """Normalize an email for storage and lookup (emails are case-insensitive)."""
+    return email.strip().lower()
+
+
 class UserService:
     """Service for user and profile database operations."""
 
@@ -34,6 +39,7 @@ class UserService:
         Returns:
             Tuple of (UserResponse or None, error message or None).
         """
+        email = normalize_email(email)
         conn = postgres_service.get_raw_connection()
         if not conn:
             return None, "Database connection failed"
@@ -41,7 +47,7 @@ class UserService:
         try:
             with conn.cursor() as cur:
                 # Check if email already exists
-                cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+                cur.execute("SELECT id FROM users WHERE LOWER(email) = %s", (email,))
                 if cur.fetchone():
                     return None, "Email already registered"
 
@@ -110,6 +116,7 @@ class UserService:
         Returns:
             Tuple of (UserResponse or None, error message or None).
         """
+        email = normalize_email(email)
         conn = postgres_service.get_raw_connection()
         if not conn:
             return None, "Database connection failed"
@@ -119,7 +126,7 @@ class UserService:
                 cur.execute(
                     """
                     SELECT id, email, password_hash, email_verified, created_at
-                    FROM users WHERE email = %s
+                    FROM users WHERE LOWER(email) = %s
                     """,
                     (email,)
                 )
@@ -191,6 +198,7 @@ class UserService:
         Returns:
             UserResponse or None if not found.
         """
+        email = normalize_email(email)
         conn = postgres_service.get_raw_connection()
         if not conn:
             return None
@@ -200,7 +208,7 @@ class UserService:
                 cur.execute(
                     """
                     SELECT id, email, email_verified, created_at
-                    FROM users WHERE email = %s
+                    FROM users WHERE LOWER(email) = %s
                     """,
                     (email,)
                 )
